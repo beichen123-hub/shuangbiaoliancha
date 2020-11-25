@@ -3,20 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>主页</title>
+
 </head>
 <body>
-<a href="{{url_for('new')}}">新增</a>
+<h1><a href="{{url_for('new')}}">新增</a></h1>
 <form action="">
-    <table border="1px">
-        {% for g in g_all %}
-            {% for s in s_all %}
-                {% if g.id == s.g_id %}
+    <table border="1px" align="center">
+        <tr>
+            <td>品牌</td>
+            <td>姓名</td>
+            <td>年龄</td>
+            <td>邮箱</td>
+            <td>密码</td>
+            <td>删除</td>
+        </tr>
+        {% for b in b %}
+            {% for m in m %}
+                {% if b.id == m.g_id %}
                     <tr>
-                        <td>{{g.name}}</td>
-                        <td>{{s.name}}</td>
-                        <td>{{s.age}}</td>
-                        <td><a href="{{url_for('delete',id =s.id)}}">删除</a></td>
-                        <td><a href="{{url_for('update',id=s.id)}}">更新</a></td>
+                        <td>{{b.name}}</td>
+                        <td>{{m.name}}</td>
+                        <td>{{m.age}}</td>
+                        <td>{{m.email}}</td>
+                        <td>{{m.password}}</td>
+                        <td><a href="{{url_for('delete',id =m.id)}}">删除</a></td>
                     </tr>
                 {% endif %}
             {% endfor %}

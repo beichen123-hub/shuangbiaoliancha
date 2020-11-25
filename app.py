@@ -15,35 +15,49 @@ app = Flask(__name__)
 app.config.from_object(config)
 db = SQLAlchemy(app)
 
-class GG(db.Model):
-    __tablename__ = "gg"
+class Brand(db.Model):
+    __tablename__ = "brand"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
 
 
-class Student(db.Model):
-    __tablename__ = "student"
+class Moto(db.Model):
+    __tablename__ = "moto"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     age = db.Column(db.String(64))
-    g_id = db.Column(db.Integer, db.ForeignKey(GG.id))
+    email = db.Column(db.String(64))
+    password = db.Column(db.String(64))
+    g_id = db.Column(db.Integer, db.ForeignKey(Brand.id))
 
 
-@app.route("/")
-def welcome():
-    return render_template("welcome.html")
+@app.route('/', methods=['GET','POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    else:
+        email = request.form.get('email')
+        password = request.form.get('password')
+        t = Moto.query.filter(Moto.email == email and Moto.password == password).first()
+        if t:
+            return redirect('home')
+        else:
+            return "不好意思！您输入的邮箱或密码有误请重新输入" \
+                   "Sorry! The email or password you entered is incorrect, please re-enter"
+
+
 
 
 @app.route("/home")
 def home():
-    g_all = GG.query.all()
-    s_all = Student.query.all()
-    return render_template("home.html", g_all=g_all, s_all=s_all)
+    b = Brand.query.all()
+    m= Moto.query.all()
+    return render_template("home.html", b=b, m=m)
 
 
 @app.route("/delete/<id>")
 def delete(id):
-    de = Student.query.filter(Student.id == id).first()
+    de = Moto.query.filter(Moto.id == id).first()
     db.session.delete(de)
     db.session.commit()
     return redirect("/home")
@@ -57,42 +71,30 @@ def new():
         g_id = request.form.get("g_id")
         name = request.form.get("name")
         age = request.form.get("age")
-        n_s = Student(name=name, age=age, g_id=g_id)
+        email = request.form.get("email")
+        password = request.form.get("password")
+        n_s = Moto(name=name, age=age, g_id=g_id, email=email, password=password)
         db.session.add(n_s)
         db.session.commit()
         return redirect("/home")
-
-
-@app.route("/update/<id>", methods=['GET', 'POST'])
-def update(id):
-    sz = Student.query.filter(Student.id == id).first()
-    if request.method == 'GET':
-        return render_template("update.html")
-    else:
-        sz.name = "笨笨"
-        sz.age = "99"
-        sz.g_id = 3
-        db.session.commit()
-        return redirect("/home")
-
 
 
 
 if __name__ == '__main__':
     db.drop_all()
     db.create_all()
-    g1 = GG(name="大数据一班")
-    g2 = GG(name="大数据二班")
-    g3 = GG(name="大数据三班")
-    db.session.add_all([g1, g2, g3])
+    u1 = Brand(name="KTM")
+    u2 = Brand(name="Honda")
+    u3 = Brand(name="Ducati")
+    db.session.add_all([u1, u2, u3])
     db.session.commit()
-    s1 = Student(name="杨呆呆", age="20", g_id=1)
-    s2 = Student(name="张傻傻", age="20", g_id=1)
-    s3 = Student(name="袁嬷嬷", age="19", g_id=2)
-    s4 = Student(name="马憨憨", age="19", g_id=2)
-    s5 = Student(name="王笨笨", age="19", g_id=3)
-    s6 = Student(name="薛笨笨", age="19", g_id=3)
-    db.session.add_all([s1, s2, s3, s4, s5, s6])
+    m1 = Moto(name="小曾", age="19",email="320654560@qq.com", password="123456", g_id=1)
+    m2 = Moto(name="张傻傻", age="20",email="192201394@163.com", password="123456", g_id=1)
+    m3 = Moto(name="袁嬷嬷", age="19",email="192201395@163.com", password="123456", g_id=2)
+    m4 = Moto(name="马憨憨", age="19",email="192201396@163.com", password="123456", g_id=2)
+    m5 = Moto(name="杨呆呆", age="19",email="192201397@163.com", password="123456", g_id=3)
+    m6 = Moto(name="薛笨笨", age="19",email="192201398@163.com", password="123456", g_id=3)
+    db.session.add_all([m1, m2, m3, m4, m5, m6])
     db.session.commit()
 
     app.run(debug=True, port=8800)
